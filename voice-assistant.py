@@ -29,7 +29,7 @@ def speak(text):
     engine.runAndWait()
 
 def main():
-    
+
     speak("Hola, soy tu asistente de voz. ¿En qué puedo ayudarte?")
     
     while True:
@@ -38,8 +38,6 @@ def main():
         if 'detener' in query or 'salir' in query:
             speak("Adiós, hasta luego")
             break
-
-        # Add more actions here
 
         if 'nombre' in query:
             speak("Mi nombre es Asistente de Voz")

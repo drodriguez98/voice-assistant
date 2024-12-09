@@ -1,34 +1,48 @@
 import speech_recognition as sr
+import keyboard
+import os
+import webbrowser
+import time
 
-# Crear un objeto de reconocimiento de voz
+# Inicializar el reconocimiento de voz
 recognizer = sr.Recognizer()
 
-# Iniciar el micrófono
-with sr.Microphone() as source:
-    print("Ajustando el ruido ambiental...")
-    # Ajustar el ruido ambiental
-    recognizer.adjust_for_ambient_noise(source)
-    print("Listo para escuchar. Di algo...")
+def search_google(query):
+    """Realiza una búsqueda en Google"""
+    url = f"https://www.google.com/search?q={query}"
+    webbrowser.open(url)
+
+def recognize_speech():
+    """Inicia el reconocimiento de voz"""
+    with sr.Microphone() as source:
+        recognizer.adjust_for_ambient_noise(source) 
+        audio = recognizer.listen(source, timeout=5)
+        try:
+            print("Reconociendo...")
+            text = recognizer.recognize_google(audio, language="es-ES")
+            print(f"Has dicho: {text}")
+
+            # Ejecutar acciones basadas en el comando de voz
+            if 'abrir explorador' in text:
+                os.system('explorer')
+            elif 'buscar' in text:
+                query = text.replace("buscar", "").strip()
+                search_google(query)
+            else:
+                print("No reconozco ese comando.")
+        except sr.UnknownValueError:
+            print("No se ha entendido bien.")
+        except sr.RequestError:
+            print("Error al conectar con el servicio de reconocimiento de voz.")
+
+def main():
+    print("Mantén presionada la tecla F7 para hablar.")
 
     while True:
-        try:
-            # Escuchar el audio
-            audio = recognizer.listen(source)
-            print("Reconociendo...")
+        # Verifica si la tecla F7 está presionada
+        if keyboard.is_pressed('F7'):
+            recognize_speech()
+        time.sleep(0.1)  # Esperar un poco antes de revisar nuevamente
 
-            # Intentar reconocer el audio con Google Speech Recognition
-            text = recognizer.recognize_google(audio, language="es-ES")
-            print(f"Lo que dijiste: {text}")
-
-            # Si se dice "adiós", salir del bucle y terminar el programa
-            if "adiós" in text.lower():
-                print("¡Hasta luego!")
-                break
-        
-        except sr.UnknownValueError:
-            # Si no se puede entender lo que se dijo
-            print("No se pudo entender lo que dijiste.")
-        
-        except sr.RequestError:
-            # Si hay un problema con la conexión a Google
-            print("Error con el servicio de reconocimiento de voz.")
+if __name__ == "__main__":
+    main()
